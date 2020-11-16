@@ -99,7 +99,7 @@ do
 			else
 				#Install PostgreSQL database server
 				apt-get -y install postgresql postgresql-contrib
-				apt-get -y install php-pqsql
+				apt-get -y install php-pgsql
 				systemctl enable postgresql
 				systemctl start postgresql
 			fi
