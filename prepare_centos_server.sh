@@ -72,21 +72,26 @@ select opt in "${options[@]}"; do
   "yes")
 
     if ! type "semanage" >/dev/null; then
-      case $( eval "rpm --eval '%{centos_ver}'") in
+      case $(eval "rpm --eval '%{centos_ver}'") in
       "7")
-      yum install -y policycoreutils-python
-      source ~/.bashrc
-      semanage permissive -a httpd_t
-      break ;;
-      "8") yum install -y policycoreutils-python-utils
-      break ;;
+        yum install -y policycoreutils-python
+        source ~/.bashrc
+        semanage permissive -a httpd_t
+        break
+        ;;
+      "8")
+        yum install -y policycoreutils-python-utils
+        break
+        ;;
       *) break ;;
       esac
     fi
 
-    break ;;
+    break
+    ;;
   "no")
-    break ;;
+    break
+    ;;
   *) echo "invalid option $REPLY" ;;
   esac
 done
@@ -100,7 +105,7 @@ else
 fi
 
 if ! type "php" >/dev/null; then
-  yum -y install php php-{mbstring,fpm,gd,json,zip,soap,mbstring,xml,xmlrpc,opcache,gd}
+  yum -y install php php-{mbstring,fpm,gd,json,zip,soap,xml,xmlrpc,opcache,gd}
 else
   echo "PHP installed"
 
@@ -108,14 +113,36 @@ else
   options=("Yes" "No")
   select opt in "${options[@]}"; do
     case $opt in
-    "Yes") yum -y install php-{mbstring,fpm,gd,json,zip,soap,mbstring,xml,xmlrpc,opcache,gd}
-    break ;;
+    "Yes")
+      yum -y install php-{mbstring,fpm,gd,json,zip,soap,xml,xmlrpc,opcache,gd}
+      break
+      ;;
     "No")
-    break ;;
+      break
+      ;;
     *) echo "invalid option $REPLY" ;;
     esac
   done
 fi
+
+PS3='Please choice php driver connection: '
+options=("MariaDB" "PostgreSQL" "Quit")
+select opt in "${options[@]}"; do
+  case $opt in
+  "MariaDB")
+    yum -y install php-mysqlnd
+    break
+    ;;
+  "PostgreSQL")
+    yum -y install php-pgsql
+    break
+    ;;
+  "Quit")
+    break
+    ;;
+  *) echo "invalid option $REPLY" ;;
+  esac
+done
 
 if ! type "/usr/local/bin/composer" >/dev/null; then
   echo "installing composer"
@@ -161,27 +188,28 @@ select opt in "${options[@]}"; do
     else
       #Install MariaDB database server
       yum -y install mariadb-server
-      yum -y install php-mysqlnd
       systemctl enable mariadb
       systemctl start mariadb
       echo "mariadb service installed."
     fi
-    break ;;
+    break
+    ;;
   "PostgreSQL")
     if systemctl --all --type service | grep -q "postgresql"; then
       echo "postgresql service exists."
     else
       #Install PostgreSQL database server
       yum -y install postgresql postgresql-server
-      yum -y install php-pgsql
       systemctl enable postgresql
       postgresql-setup initdb
       systemctl start postgresql
       echo "postgresql service installed."
     fi
-    break ;;
+    break
+    ;;
   "Quit")
-    break ;;
+    break
+    ;;
   *) echo "invalid option $REPLY" ;;
   esac
 done
